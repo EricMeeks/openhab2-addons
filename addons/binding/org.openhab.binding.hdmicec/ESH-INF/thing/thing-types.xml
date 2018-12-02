@@ -5,22 +5,23 @@
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
     <!-- Sample Thing Type -->
-    <thing-type id="pulseEightCec">
+    <thing-type id="equipment">
         <label>Pulse-Eight HdmiCec adapter</label>
         <description>Pulse-Eight HdmiCec adapter</description>
-
+        
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+        
         <channels>
             <channel id="power" typeId="power"/>
+            <channel id="event" typeId="event" />            
         </channels>
         
         <config-description>
-            <parameter name="cecClientPath" type="text" required="true">
-                <label>cec-client executable path</label>
-                <description>e.g. /usr/local/bin/cec-client</description>
-            </parameter>
-            <parameter name="comPort" type="text" required="true">
-                <label>Device com port</label>
-                <description>e.g. /dev/ttyACM1</description>
+            <parameter name="powerPattern" type="text" required="true">
+                <label>powerPattern</label>
+                <description>e.g. ".*TV \\(0\\): power status changed from '(.*)' to '(.*)'"</description>
             </parameter>
             <parameter name="pollInterval" type="integer" required="true">
                 <label>Poll interval</label>
@@ -30,7 +31,7 @@
             <parameter name="ignoreUnknownState" type="boolean" required="true">
                 <label>Ignore unknown state</label>
                 <description>If set the unknown power state of the cec adapter will be ignored. This can be used to ignore wrong reports of this state from the adapter.</description>
-                <default>60</default>
+                <default>true</default>
             </parameter>
         </config-description>
     </thing-type>
@@ -42,4 +43,11 @@
         <description>Power on/off your device</description>
     </channel-type>
 
+    <!-- Button Event Channel Type -->
+    <channel-type id="event">
+        <kind>trigger</kind>
+        <label>Event</label>
+        <description>Triggers when something happens</description>
+    </channel-type>
+    
 </thing:thing-descriptions>

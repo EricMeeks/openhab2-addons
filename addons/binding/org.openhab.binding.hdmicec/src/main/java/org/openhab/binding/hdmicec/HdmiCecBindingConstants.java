@@ -20,10 +20,13 @@ public class HdmiCecBindingConstants {
 
     public static final String BINDING_ID = "hdmicec";
 
+    public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
+
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_PULSE_EIGHT_CEC = new ThingTypeUID(BINDING_ID, "pulseEightCec");
+    public final static ThingTypeUID THING_TYPE_EQUIPMENT = new ThingTypeUID(BINDING_ID, "equipment");
 
     // List of all Channel ids
     public final static String CHANNEL_POWER = "power";
+    public static final String CHANNEL_EVENT = "event";
 
 }

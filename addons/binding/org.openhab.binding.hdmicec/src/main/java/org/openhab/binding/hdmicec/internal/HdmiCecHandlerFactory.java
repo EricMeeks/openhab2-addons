@@ -8,16 +8,19 @@
  */
 package org.openhab.binding.hdmicec.internal;
 
-import static org.openhab.binding.hdmicec.HdmiCecBindingConstants.THING_TYPE_PULSE_EIGHT_CEC;
+import static org.openhab.binding.hdmicec.HdmiCecBindingConstants.*;
 
-import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.openhab.binding.hdmicec.handler.HdmiCecHandler;
+import org.openhab.binding.hdmicec.handler.HdmiCecBridgeHandler;
+import org.openhab.binding.hdmicec.handler.HdmiCecEquipmentHandler;
 
 /**
  * The {@link HdmiCecHandlerFactory} is responsible for creating things and thing
@@ -27,12 +30,12 @@ import org.openhab.binding.hdmicec.handler.HdmiCecHandler;
  */
 public class HdmiCecHandlerFactory extends BaseThingHandlerFactory {
 
-    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections
-            .singleton(THING_TYPE_PULSE_EIGHT_CEC);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of(THING_TYPE_BRIDGE, THING_TYPE_EQUIPMENT)
+            .collect(Collectors.toSet());
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+        return SUPPORTED_THING_TYPES.contains(thingTypeUID);
     }
 
     @Override
@@ -40,8 +43,10 @@ public class HdmiCecHandlerFactory extends BaseThingHandlerFactory {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(THING_TYPE_PULSE_EIGHT_CEC)) {
-            return new HdmiCecHandler(thing);
+        if (thingTypeUID.equals(THING_TYPE_EQUIPMENT)) {
+            return new HdmiCecEquipmentHandler(thing);
+        } else if (thingTypeUID.equals(THING_TYPE_BRIDGE)) {
+            return new HdmiCecBridgeHandler((Bridge) thing);
         }
 
         return null;
