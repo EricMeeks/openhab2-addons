@@ -6,48 +6,34 @@
 
     <!-- Sample Thing Type -->
     <thing-type id="equipment">
-        <label>Pulse-Eight HdmiCec adapter</label>
-        <description>Pulse-Eight HdmiCec adapter</description>
-        
-        <supported-bridge-type-refs>
-            <bridge-type-ref id="bridge" />
-        </supported-bridge-type-refs>
-        
+        <label>HDMI-CEC Equipment</label>
+        <description>Represents you TV, Home Theater, Blu-Ray, etc. that speaks HDMI CEC</description>
+          
         <channels>
-            <channel id="power" typeId="power"/>
             <channel id="event" typeId="event" />            
+            <channel id="send" typeId="send" />
         </channels>
         
         <config-description>
-            <parameter name="powerPattern" type="text" required="true">
-                <label>powerPattern</label>
-                <description>e.g. ".*TV \\(0\\): power status changed from '(.*)' to '(.*)'"</description>
-            </parameter>
-            <parameter name="pollInterval" type="integer" required="true">
-                <label>Poll interval</label>
-                <description>Polling interval in seconds to check if the device still has power. Set to 0 to disable polling.</description>
-                <default>60</default>
-            </parameter>
-            <parameter name="ignoreUnknownState" type="boolean" required="true">
-                <label>Ignore unknown state</label>
-                <description>If set the unknown power state of the cec adapter will be ignored. This can be used to ignore wrong reports of this state from the adapter.</description>
-                <default>true</default>
+            <parameter name="device" type="text" required="true">
+                <label>device</label>
+                <description>CEC Device, a single HEX value such as 0, 1, 2, E (0 is TV)</description>
             </parameter>
         </config-description>
     </thing-type>
 
-    <!-- Sample Channel Type -->
-    <channel-type id="power">
-        <item-type>Switch</item-type>
-        <label>Power</label>
-        <description>Power on/off your device</description>
-    </channel-type>
-
-    <!-- Button Event Channel Type -->
+    <!-- Event Channel Type -->
     <channel-type id="event">
         <kind>trigger</kind>
-        <label>Event</label>
+        <label>Traffic Event</label>
         <description>Triggers when something happens</description>
     </channel-type>
-    
+
+    <!-- Transmit Channel Type -->
+    <channel-type id="send">
+        <item-type>String</item-type>
+        <label>Send Command</label>
+        <description>Used to send CEC commands</description>
+    </channel-type>
+        
 </thing:thing-descriptions>

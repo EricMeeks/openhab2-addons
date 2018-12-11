@@ -139,7 +139,9 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
 
     private void open() {
         isRunning = true;
-        // this.pattern = Pattern.compile(".*TV \\(0\\): power status changed from '(.*)' to '(.*)'");
+
+        // we're betting on the fact that the first value in () is the device ID. Seems valid from what I've seen!
+        final Pattern debugStatement = Pattern.compile("DEBUG.* \\((.)\\) .*");
 
         if (thread == null) {
             thread = new Thread() {
@@ -185,15 +187,13 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
                             callbackCecClientStatus(false, "could not start CEC communications");
                             isRunning = false;
                         } else {
-                            for (Thing thing : getThing().getThings()) {
-                                HdmiCecEquipmentHandler equipment = (HdmiCecEquipmentHandler) thing.getHandler();
-                                Pattern pattern = Pattern.compile(equipment.getPowerPattern());
-                                Matcher matcher = pattern.matcher(line);
-                                if (matcher.matches()) {
-                                    logger.debug("Line trace: {}", line);
-                                    // callbackCecPowerChange(matcher.group(1), matcher.group(2));
-                                } else {
-                                    equipment.cecTriggerEvent("crazyStringToLookFor");
+                            Matcher matcher = debugStatement.matcher(line);
+                            if (matcher.matches()) {
+                                for (Thing thing : getThing().getThings()) {
+                                    HdmiCecEquipmentHandler equipment = (HdmiCecEquipmentHandler) thing.getHandler();
+                                    if (equipment != null && equipment.getDevice().equalsIgnoreCase(matcher.group(1))) {
+                                        equipment.cecMatchLine(line);
+                                    }
                                 }
                             }
                         }
@@ -221,8 +221,10 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
         }
         for (Thing thing : getThing().getThings()) {
             HdmiCecEquipmentHandler equipment = (HdmiCecEquipmentHandler) thing.getHandler();
-            // actually, do we want to do this?
-            equipment.cecClientStatus(online, status);
+            if (equipment != null) {
+                // actually, do we want to do this?
+                equipment.cecClientStatus(online, status);
+            }
         }
     }
 }
