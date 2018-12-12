@@ -10,6 +10,8 @@
         <description>Represents you TV, Home Theater, Blu-Ray, etc. that speaks HDMI CEC</description>
           
         <channels>
+            <channel id="power" typeId="power" />            
+            <channel id="activeSource" typeId="activeSource" />
             <channel id="event" typeId="event" />            
             <channel id="send" typeId="send" />
         </channels>
@@ -19,8 +21,24 @@
                 <label>device</label>
                 <description>CEC Device, a single HEX value such as 0, 1, 2, E (0 is TV)</description>
             </parameter>
+            <parameter name="address" type="text" required="true">
+                <label>address</label>
+                <description>CEC Address, of the form 0.0.0.0</description>
+            </parameter>
         </config-description>
     </thing-type>
+
+    <channel-type id="power">
+        <item-type>Switch</item-type>
+        <label>Power</label>
+        <description>Power on/off your device</description>
+    </channel-type>
+    
+    <channel-type id="activeSource">
+        <item-type>Switch</item-type>
+        <label>Active Source</label>
+        <description>Make source active/inactive</description>
+    </channel-type>
 
     <!-- Event Channel Type -->
     <channel-type id="event">

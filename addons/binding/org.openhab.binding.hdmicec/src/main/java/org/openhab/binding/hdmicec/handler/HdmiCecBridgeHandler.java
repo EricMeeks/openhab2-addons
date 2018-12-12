@@ -45,9 +45,23 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
     // List of Configurations constants
     public static final String CEC_CLIENT_PATH = "cecClientPath";
     public static final String COM_PORT = "comPort";
+    public static final String DEVICE_STATEMENT_REGEX = "deviceStatementRegex";
+    public static final String POWER_ON_REGEX = "powerOnRegex";
+    public static final String POWER_OFF_REGEX = "powerOffRegex";
+    public static final String ACTIVE_SOURCE_ON_REGEX = "activeSourceOnRegex";
+    public static final String ACTIVE_SOURCE = "ActiveSourceOffRegex";
 
     private String cecClientPath;
     private String comPort;
+
+    // we're betting on the fact that the first value in () is the device ID. Seems valid from what I've seen!
+    private Pattern deviceStatement = Pattern.compile("DEBUG.* \\((.)\\) .*");
+    private Pattern powerOn = Pattern.compile(".*: power status changed from '(.*)' to 'on'");
+    private Pattern powerOff = Pattern.compile(".*: power status changed from '(.*)' to 'standby'");
+    private Pattern activeSourceOn = Pattern.compile(".* making .* the active source");
+    private Pattern activeSourceOff = Pattern.compile(".* marking .* \\((.)\\) as inactive source");
+    private Pattern eventPattern = Pattern.compile("^(?!.*(<<|>>)).*: (.*)$"); // the 2nd group is the event
+
     private boolean isRunning;
 
     private Thread thread;
@@ -69,6 +83,21 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
         logger.debug("Initializing the HdmiCec Bridge handler");
         cecClientPath = (String) this.getConfig().get(CEC_CLIENT_PATH);
         comPort = (String) this.getConfig().get(COM_PORT);
+        if (this.getConfig().containsKey(DEVICE_STATEMENT_REGEX)) {
+            deviceStatement = Pattern.compile((String) this.getConfig().get(DEVICE_STATEMENT_REGEX));
+        }
+        if (this.getConfig().containsKey(POWER_ON_REGEX)) {
+            powerOn = Pattern.compile((String) this.getConfig().get(POWER_ON_REGEX));
+        }
+        if (this.getConfig().containsKey(POWER_OFF_REGEX)) {
+            powerOff = Pattern.compile((String) this.getConfig().get(POWER_OFF_REGEX));
+        }
+        if (this.getConfig().containsKey(ACTIVE_SOURCE_ON_REGEX)) {
+            activeSourceOn = Pattern.compile((String) this.getConfig().get(ACTIVE_SOURCE_ON_REGEX));
+        }
+        if (this.getConfig().containsKey(ACTIVE_SOURCE)) {
+            activeSourceOff = Pattern.compile((String) this.getConfig().get(ACTIVE_SOURCE));
+        }
 
         logger.debug("initialize client: {}, com port: {}", cecClientPath, comPort);
 
@@ -84,7 +113,6 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
             updateStatus(ThingStatus.ONLINE);
         } catch (IOException e) {
             logger.debug("Bridge handler exception.", e);
-            e.printStackTrace();
         }
     }
 
@@ -95,7 +123,6 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
             sendCommand("q");
         } catch (Exception e) {
             logger.debug("Bridge handler exception.", e);
-            e.printStackTrace();
         }
         super.dispose();
         logger.debug("Bridge handler disposed.");
@@ -128,7 +155,6 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
             }
         } catch (Exception e) {
             logger.debug("Exception in stopCecClient", e);
-            e.printStackTrace();
         }
 
         process = null;
@@ -139,9 +165,6 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
 
     private void open() {
         isRunning = true;
-
-        // we're betting on the fact that the first value in () is the device ID. Seems valid from what I've seen!
-        final Pattern debugStatement = Pattern.compile("DEBUG.* \\((.)\\) .*");
 
         if (thread == null) {
             thread = new Thread() {
@@ -187,7 +210,7 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
                             callbackCecClientStatus(false, "could not start CEC communications");
                             isRunning = false;
                         } else {
-                            Matcher matcher = debugStatement.matcher(line);
+                            Matcher matcher = deviceStatement.matcher(line);
                             if (matcher.matches()) {
                                 for (Thing thing : getThing().getThings()) {
                                     HdmiCecEquipmentHandler equipment = (HdmiCecEquipmentHandler) thing.getHandler();
@@ -206,12 +229,39 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
         thread.start();
     }
 
-    public void sendCommand(String command) throws IOException {
-        if (writer != null) {
+    Pattern getDeviceStatement() {
+        return deviceStatement;
+    }
+
+    Pattern getPowerOn() {
+        return powerOn;
+    }
+
+    Pattern getPowerOff() {
+        return powerOff;
+    }
+
+    Pattern getActiveSourceOn() {
+        return activeSourceOn;
+    }
+
+    Pattern getActiveSourceOff() {
+        return activeSourceOff;
+    }
+
+    Pattern getEventPattern() {
+        return eventPattern;
+    }
+
+    public void sendCommand(String command) {
+        try {
             writer.write(command);
             writer.newLine();
             writer.flush();
+        } catch (Exception e) {
+            logger.debug("Bridge handler exception in sendCommand: " + command, e);
         }
+
     }
 
     private void callbackCecClientStatus(boolean online, String status) {

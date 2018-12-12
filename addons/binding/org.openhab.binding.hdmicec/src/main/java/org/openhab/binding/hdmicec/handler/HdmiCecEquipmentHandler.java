@@ -8,10 +8,9 @@
  */
 package org.openhab.binding.hdmicec.handler;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -35,12 +34,11 @@ public class HdmiCecEquipmentHandler extends BaseThingHandler {
 
     // List of Configurations constants
     public static final String DEVICE = "device";
-
-    private static final Pattern active = Pattern.compile(".*making .* the active source");
-    private static final Pattern power = Pattern.compile(".* power status changed from '(.*)' to '(.*)'");
+    public static final String ADDRESS = "address";
 
     // config paramaters
     private String device; // hex number, like 0 or e
+    private String address; // of the form 0.0.0.0
 
     private HdmiCecBridgeHandler bridgeHandler;
 
@@ -50,15 +48,23 @@ public class HdmiCecEquipmentHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(HdmiCecBindingConstants.CHANNEL_SEND)) {
-            try {
-                if (command instanceof StringType) {
-                    // think about this, do we want to have a controlled vocabulary or just transmit something raw, or
-                    // both?
-                    bridgeHandler.sendCommand(command.toString());
-                }
-            } catch (IOException e) {
-                logger.error("Error in handleCommand: {}", e.toString());
+        if (channelUID.getId().equals(HdmiCecBindingConstants.CHANNEL_POWER)) {
+            if (command.equals(OnOffType.ON)) {
+                bridgeHandler.sendCommand("on " + getDevice());
+            } else if (command.equals(OnOffType.OFF)) {
+                bridgeHandler.sendCommand("standby " + getDevice());
+            }
+        } else if (channelUID.getId().equals(HdmiCecBindingConstants.CHANNEL_ACTIVE_SOURCE)) {
+            if (command.equals(OnOffType.ON)) {
+                bridgeHandler.sendCommand("tx " + getDevice() + "F:82:" + getAddressAsFrame());
+            } else if (command.equals(OnOffType.OFF)) {
+                bridgeHandler.sendCommand("tx " + getDevice() + "F:9D:" + getAddressAsFrame());
+            }
+        } else if (channelUID.getId().equals(HdmiCecBindingConstants.CHANNEL_SEND)) {
+            if (command instanceof StringType) {
+                // think about this, do we want to have a controlled vocabulary or just transmit something raw, or
+                // both?
+                bridgeHandler.sendCommand(command.toString());
             }
         }
     }
@@ -67,10 +73,19 @@ public class HdmiCecEquipmentHandler extends BaseThingHandler {
         return device;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public String getAddressAsFrame() {
+        return address.replace(".", "").substring(0, 2) + ":" + address.replace(".", "").substring(2);
+    }
+
     @Override
     public void initialize() {
         try {
             device = (String) this.getConfig().get(DEVICE);
+            address = (String) this.getConfig().get(ADDRESS);
 
             logger.debug("Initializing thing {}", getThing().getUID());
             bridgeHandler = (HdmiCecBridgeHandler) getBridge().getHandler();
@@ -101,15 +116,30 @@ public class HdmiCecEquipmentHandler extends BaseThingHandler {
     }
 
     void cecMatchLine(String line) {
-        Matcher matcher = active.matcher(line);
+        Matcher matcher = bridgeHandler.getPowerOn().matcher(line);
         if (matcher.matches()) {
-            triggerChannel(HdmiCecBindingConstants.CHANNEL_EVENT, "MADE_ACTIVE_SOURCE");
-        } else {
-            matcher = power.matcher(line);
-            if (matcher.matches()) {
-                triggerChannel(HdmiCecBindingConstants.CHANNEL_EVENT,
-                        "POWER_CHANGED_TO_" + matcher.group(2).replace(' ', '_'));
-            }
+            this.updateState(HdmiCecBindingConstants.CHANNEL_POWER, OnOffType.ON);
+            return;
+        }
+        matcher = bridgeHandler.getPowerOff().matcher(line);
+        if (matcher.matches()) {
+            this.updateState(HdmiCecBindingConstants.CHANNEL_POWER, OnOffType.OFF);
+            return;
+        }
+        matcher = bridgeHandler.getActiveSourceOn().matcher(line);
+        if (matcher.matches()) {
+            this.updateState(HdmiCecBindingConstants.CHANNEL_ACTIVE_SOURCE, OnOffType.ON);
+            return;
+        }
+        matcher = bridgeHandler.getActiveSourceOff().matcher(line);
+        if (matcher.matches()) {
+            this.updateState(HdmiCecBindingConstants.CHANNEL_ACTIVE_SOURCE, OnOffType.OFF);
+            return;
+        }
+        matcher = bridgeHandler.getEventPattern().matcher(line);
+        if (matcher.matches()) {
+            triggerChannel(HdmiCecBindingConstants.CHANNEL_EVENT, matcher.group(2));
+            return;
         }
     }
 

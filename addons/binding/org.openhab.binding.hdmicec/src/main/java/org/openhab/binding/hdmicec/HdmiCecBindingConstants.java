@@ -26,6 +26,8 @@ public class HdmiCecBindingConstants {
     public final static ThingTypeUID THING_TYPE_EQUIPMENT = new ThingTypeUID(BINDING_ID, "equipment");
 
     // List of all Channel ids
+    public static final String CHANNEL_POWER = "power";
+    public static final String CHANNEL_ACTIVE_SOURCE = "activeSource";
     public static final String CHANNEL_EVENT = "event";
     public static final String CHANNEL_SEND = "send";
 
