@@ -1,14 +1,10 @@
 /**
- * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0
- *
- * SPDX-License-Identifier: EPL-2.0
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.openhab.binding.hdmicec.handler;
 
@@ -55,11 +51,11 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
     private String comPort;
 
     // we're betting on the fact that the first value in () is the device ID. Seems valid from what I've seen!
-    private Pattern deviceStatement = Pattern.compile("DEBUG.* \\((.)\\) .*");
+    private Pattern deviceStatement = Pattern.compile("DEBUG.* \\((.)\\).*");
     private Pattern powerOn = Pattern.compile(".*: power status changed from '(.*)' to 'on'");
     private Pattern powerOff = Pattern.compile(".*: power status changed from '(.*)' to 'standby'");
-    private Pattern activeSourceOn = Pattern.compile(".* making .* the active source");
-    private Pattern activeSourceOff = Pattern.compile(".* marking .* \\((.)\\) as inactive source");
+    private Pattern activeSourceOn = Pattern.compile(".*making .* \\((.)\\) the active source");
+    private Pattern activeSourceOff = Pattern.compile(".*marking .* \\((.)\\) as inactive source");
     private Pattern eventPattern = Pattern.compile("^(?!.*(<<|>>)).*: (.*)$"); // the 2nd group is the event
 
     private boolean isRunning;

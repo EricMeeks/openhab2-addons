@@ -84,6 +84,7 @@ public class HdmiCecEquipmentHandler extends BaseThingHandler {
     @Override
     public void initialize() {
         try {
+            getThing().setLabel(getThing().getLabel().replace("Equipment", getThing().getUID().getId()));
             device = (String) this.getConfig().get(DEVICE);
             address = (String) this.getConfig().get(ADDRESS);
 
@@ -118,22 +119,22 @@ public class HdmiCecEquipmentHandler extends BaseThingHandler {
     void cecMatchLine(String line) {
         Matcher matcher = bridgeHandler.getPowerOn().matcher(line);
         if (matcher.matches()) {
-            this.updateState(HdmiCecBindingConstants.CHANNEL_POWER, OnOffType.ON);
+            updateState(HdmiCecBindingConstants.CHANNEL_POWER, OnOffType.ON);
             return;
         }
         matcher = bridgeHandler.getPowerOff().matcher(line);
         if (matcher.matches()) {
-            this.updateState(HdmiCecBindingConstants.CHANNEL_POWER, OnOffType.OFF);
+            updateState(HdmiCecBindingConstants.CHANNEL_POWER, OnOffType.OFF);
             return;
         }
         matcher = bridgeHandler.getActiveSourceOn().matcher(line);
         if (matcher.matches()) {
-            this.updateState(HdmiCecBindingConstants.CHANNEL_ACTIVE_SOURCE, OnOffType.ON);
+            updateState(HdmiCecBindingConstants.CHANNEL_ACTIVE_SOURCE, OnOffType.ON);
             return;
         }
         matcher = bridgeHandler.getActiveSourceOff().matcher(line);
         if (matcher.matches()) {
-            this.updateState(HdmiCecBindingConstants.CHANNEL_ACTIVE_SOURCE, OnOffType.OFF);
+            updateState(HdmiCecBindingConstants.CHANNEL_ACTIVE_SOURCE, OnOffType.OFF);
             return;
         }
         matcher = bridgeHandler.getEventPattern().matcher(line);
