@@ -121,6 +121,12 @@
         <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.enocean/${project.version}</bundle>
     </feature>
 
+    <feature name="openhab-binding-evohome" description="Evohome Binding" version="${project.version}">
+        <feature>openhab-runtime-base</feature>
+        <feature>openhab-transport-http</feature>
+        <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.evohome/${project.version}</bundle>
+    </feature>
+
     <feature name="openhab-binding-exec" description="Exec Binding" version="${project.version}">
         <feature>openhab-runtime-base</feature>
         <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.exec/${project.version}</bundle>
@@ -251,6 +257,12 @@
         <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.keba/${project.version}</bundle>
     </feature>
 
+    <feature name="openhab-binding-km200" description="KM200 Binding" version="${project.version}">
+        <feature>openhab-runtime-base</feature>
+        <feature>openhab-transport-mdns</feature>
+        <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.km200/${project.version}</bundle>
+    </feature>
+
     <feature name="openhab-binding-knx" description="KNX Binding" version="${project.version}">
         <feature>openhab-runtime-base</feature>
         <feature>openhab-transport-serial</feature>
@@ -345,6 +357,12 @@
     <feature name="openhab-binding-mihome" description="Xiaomi Mi Smart Home Binding" version="${project.version}">
         <feature>openhab-runtime-base</feature>
         <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.mihome/${project.version}</bundle>
+    </feature>
+
+    <feature name="openhab-binding-miio" description="Xiaomi Mi IO Binding" version="${project.version}">
+        <feature>openhab-runtime-base</feature>
+        <feature>openhab-transport-mdns</feature>
+        <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.miio/${project.version}</bundle>
     </feature>
 
     <feature name="openhab-binding-milight" description="Milight Binding" version="${project.version}">
@@ -456,6 +474,11 @@
         <feature>openhab-transport-serial</feature>
         <feature>openhab-transport-upnp</feature>
         <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.pioneeravr/${project.version}</bundle>
+    </feature>
+
+    <feature name="openhab-binding-plclogo" description="PLCLogo Binding" version="${project.version}">
+        <feature>openhab-runtime-base</feature>
+        <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.plclogo/${project.version}</bundle>
     </feature>
 
     <feature name="openhab-binding-plugwise" description="Plugwise Binding" version="${project.version}">
@@ -614,6 +637,11 @@
     <feature name="openhab-binding-tplinksmarthome" description="TP-Link Smart Home Binding" version="${project.version}">
         <feature>openhab-runtime-base</feature>
         <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.tplinksmarthome/${project.version}</bundle>
+    </feature>
+
+    <feature name="openhab-binding-unifi" description="UniFi Binding" version="${project.version}">
+        <feature>openhab-runtime-base</feature>
+        <bundle start-level="80">mvn:org.openhab.binding/org.openhab.binding.unifi/${project.version}</bundle>
     </feature>
 
     <feature name="openhab-binding-urtsi" description="Somfy URTSI II Binding" version="${project.version}">

@@ -48,6 +48,6 @@ public class HueStateBulb extends HueStatePlug {
 
     @Override
     public String toString() {
-        return "[on: " + on + " bri: " + bri + " reachable: " + reachable;
+        return "on: " + on + ", brightness: " + bri + ", reachable: " + reachable;
     }
 }

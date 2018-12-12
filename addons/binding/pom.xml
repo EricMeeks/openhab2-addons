@@ -39,6 +39,7 @@
     <module>org.openhab.binding.dsmr</module>
     <module>org.openhab.binding.dsmr.test</module>
     <module>org.openhab.binding.enocean</module>
+    <module>org.openhab.binding.evohome</module>
     <module>org.openhab.binding.exec</module>
     <module>org.openhab.binding.feed</module>
     <module>org.openhab.binding.feed.test</module>
@@ -62,6 +63,7 @@
     <module>org.openhab.binding.irtrans</module>
     <module>org.openhab.binding.jeelink</module>
     <module>org.openhab.binding.keba</module>
+    <module>org.openhab.binding.km200</module>
     <module>org.openhab.binding.knx</module>
     <module>org.openhab.binding.knx.test</module>
     <module>org.openhab.binding.kodi</module>
@@ -80,6 +82,7 @@
     <module>org.openhab.binding.meteostick</module>
     <module>org.openhab.binding.miele</module>
     <module>org.openhab.binding.mihome</module>
+    <module>org.openhab.binding.miio</module>
     <module>org.openhab.binding.milight</module>
     <module>org.openhab.binding.minecraft</module>
     <module>org.openhab.binding.modbus</module>
@@ -106,6 +109,7 @@
     <module>org.openhab.binding.pentair</module>
     <module>org.openhab.binding.phc</module>
     <module>org.openhab.binding.pioneeravr</module>
+    <module>org.openhab.binding.plclogo</module>
     <module>org.openhab.binding.plugwise</module>
     <module>org.openhab.binding.powermax</module>
     <module>org.openhab.binding.pulseaudio</module>
@@ -140,6 +144,7 @@
     <module>org.openhab.binding.toon</module>
     <module>org.openhab.binding.tplinksmarthome</module>
     <module>org.openhab.binding.tplinksmarthome.test</module>
+    <module>org.openhab.binding.unifi</module>
     <module>org.openhab.binding.urtsi</module>
     <module>org.openhab.binding.valloxmv</module>
     <module>org.openhab.binding.velbus</module>

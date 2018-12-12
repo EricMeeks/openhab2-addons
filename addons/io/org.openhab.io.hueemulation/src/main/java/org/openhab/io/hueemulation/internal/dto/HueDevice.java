@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.openhab.io.hueemulation.internal.DeviceType;
+import org.openhab.io.hueemulation.internal.dto.HueStateColorBulb.ColorMode;
 
 /**
  * Hue API device object
@@ -34,18 +35,40 @@ public class HueDevice {
     public final String modelid;
     public final String uniqueid;
     public final String manufacturername;
+    public final @Nullable String productname;
     public final String swversion;
     public final @Nullable String luminaireuniqueid = null;
     public final @Nullable String swconfigid;
     public final @Nullable String productid;
-    public final boolean friendsOfHue = true;
+    public @Nullable Boolean friendsOfHue = true;
     public final @Nullable String colorGamut;
-    public final boolean hascolor;
+    public @Nullable Boolean hascolor = null;
 
     public String name;
     /** Associated item UID */
     public transient Item item;
     public transient DeviceType deviceType;
+
+    public static class Config {
+        public final String archetype = "classicbulb";
+        public final String function = "functional";
+        public final String direction = "omnidirectional";
+    };
+
+    public Config config = new Config();
+
+    public static class Streaming {
+        public boolean renderer = false;
+        public boolean proxy = false;
+    };
+
+    public static class Capabilities {
+        public boolean certified = false;
+        public final Streaming streaming = new Streaming();
+        public final Object control = new Object();
+    };
+
+    public Capabilities capabilities = new Capabilities();
 
     /**
      * Create a hue device.
@@ -71,7 +94,9 @@ public class HueDevice {
                 this.swconfigid = "F921C859";
                 this.swversion = "1.15.2_r19181";
                 this.productid = "Philips-LCT010-1-A19ECLv4";
+                this.productname = null;
                 this.hascolor = true;
+                this.capabilities.certified = true;
                 break;
             case WhiteType:
                 /** Hue White A19 - 3nd gen - white, 2700K only */
@@ -84,6 +109,8 @@ public class HueDevice {
                 this.swversion = "66012040";
                 this.productid = null;
                 this.hascolor = false;
+                this.productname = null;
+                this.capabilities.certified = true;
                 break;
             case WhiteTemperatureType:
                 this.name = label != null ? label : "";
@@ -95,6 +122,8 @@ public class HueDevice {
                 this.swversion = "66012040";
                 this.productid = null;
                 this.hascolor = false;
+                this.productname = null;
+                this.capabilities.certified = true;
                 break;
             default:
             case SwitchType:
@@ -107,10 +136,12 @@ public class HueDevice {
                 this.modelid = "Plug 01";
                 this.colorGamut = null;
                 this.manufacturername = "OSRAM";
+                this.productname = "On/Off plug";
                 this.swconfigid = null;
-                this.swversion = "66012040";
+                this.swversion = "V1.04.12";
                 this.productid = null;
                 this.hascolor = false;
+                this.friendsOfHue = null;
                 break;
         }
 
@@ -216,26 +247,12 @@ public class HueDevice {
 
             try {
                 HueStateColorBulb c = as(HueStateColorBulb.class);
-                if (c.sat != newState.sat) {
-                    c.sat = newState.sat;
-                    command = c.toHSBType();
-                }
+                c.sat = newState.sat;
+                c.colormode = ColorMode.hs;
+                command = c.toHSBType();
                 successApplied.put("sat", newState.sat);
             } catch (ClassCastException e) {
                 errorApplied.add("sat");
-            }
-        }
-
-        if (newState.hue != null) {
-            try {
-                HueStateColorBulb c = as(HueStateColorBulb.class);
-                if (c.hue != newState.hue) {
-                    c.hue = newState.hue;
-                    command = c.toHSBType();
-                }
-                successApplied.put("hue", newState.hue);
-            } catch (ClassCastException e) {
-                errorApplied.add("hue");
             }
         }
 
@@ -246,11 +263,24 @@ public class HueDevice {
                 if (newV < 0 || newV > HueStateColorBulb.MAX_SAT) {
                     throw new ClassCastException();
                 }
+                c.colormode = ColorMode.hs;
                 c.sat = newV;
                 command = c.toHSBType();
                 successApplied.put("sat", newState.sat);
             } catch (ClassCastException e) {
                 errorApplied.add("sat_inc");
+            }
+        }
+
+        if (newState.hue != null) {
+            try {
+                HueStateColorBulb c = as(HueStateColorBulb.class);
+                c.colormode = ColorMode.hs;
+                c.hue = newState.hue;
+                command = c.toHSBType();
+                successApplied.put("hue", newState.hue);
+            } catch (ClassCastException e) {
+                errorApplied.add("hue");
             }
         }
 
@@ -261,6 +291,7 @@ public class HueDevice {
                 if (newV < 0 || newV > HueStateColorBulb.MAX_HUE) {
                     throw new ClassCastException();
                 }
+                c.colormode = ColorMode.hs;
                 c.hue = newV;
                 command = c.toHSBType();
                 successApplied.put("hue", newState.hue);
@@ -271,11 +302,20 @@ public class HueDevice {
 
         if (newState.ct != null) {
             try {
-                if (as(HueStateBulb.class).ct != newState.ct) {
-                    as(HueStateBulb.class).ct = newState.ct;
-                    // We can't do anything here with a white color temperature.
-                    // The core ESH color type does not support setting it.
+                // We can't do anything here with a white color temperature.
+                // The core ESH color type does not support setting it.
+
+                // Adjusting the color temperature implies setting the mode to ct
+                if (state instanceof HueStateColorBulb) {
+                    HueStateColorBulb c = as(HueStateColorBulb.class);
+                    if (c.colormode != ColorMode.ct || c.sat > 0) {
+                        c.sat = 0;
+                        c.colormode = ColorMode.ct;
+                        command = c.toHSBType();
+                    }
                 }
+                successApplied.put("colormode", ColorMode.ct);
+                successApplied.put("sat", 0);
                 successApplied.put("ct", newState.ct);
             } catch (ClassCastException e) {
                 errorApplied.add("ct");
@@ -284,12 +324,18 @@ public class HueDevice {
 
         if (newState.ct_inc != null) {
             try {
-                HueStateColorBulb c = as(HueStateColorBulb.class);
-                int newV = c.ct + newState.ct_inc;
-                if (newV < 0 || newV > HueStateBulb.MAX_CT) {
-                    throw new ClassCastException();
+                // We can't do anything here with a white color temperature.
+                // The core ESH color type does not support setting it.
+
+                // Adjusting the color temperature implies setting the mode to ct
+                if (state instanceof HueStateColorBulb) {
+                    HueStateColorBulb c = as(HueStateColorBulb.class);
+                    if (c.colormode != ColorMode.ct) {
+                        c.sat = 0;
+                        command = c.toHSBType();
+                        successApplied.put("colormode", c.colormode);
+                    }
                 }
-                c.ct = newV;
                 successApplied.put("ct", newState.ct);
             } catch (ClassCastException e) {
                 errorApplied.add("ct_inc");
@@ -318,10 +364,24 @@ public class HueDevice {
     public void updateItem(Item element) {
         item = element;
         setState(item.getState());
+
         // Just update the item label and item reference
         String label = element.getLabel();
         if (label != null) {
             name = label;
         }
+    }
+
+    /**
+     * Synchronizes the item state with the hue state object
+     */
+    public void updateState() {
+        setState(item.getState());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        return b.append(name).append(": ").append(type).append("\n\t").append(state.toString()).toString();
     }
 }
