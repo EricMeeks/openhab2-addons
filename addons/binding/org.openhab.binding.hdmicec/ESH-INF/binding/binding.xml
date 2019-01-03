@@ -5,6 +5,6 @@
 
 	<name>HdmiCec Binding</name>
 	<description>Binding for cec-client.</description>
-	<author>David Masshardt</author>
+	<author>David Masshardt and Eric Meeks</author>
 
 </binding:binding>
