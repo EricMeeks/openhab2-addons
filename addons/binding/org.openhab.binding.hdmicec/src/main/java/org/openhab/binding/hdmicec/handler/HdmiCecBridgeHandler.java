@@ -18,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.openhab.binding.hdmicec.HdmiCecBindingConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,8 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
     public static final String POWER_ON_REGEX = "powerOnRegex";
     public static final String POWER_OFF_REGEX = "powerOffRegex";
     public static final String ACTIVE_SOURCE_ON_REGEX = "activeSourceOnRegex";
-    public static final String ACTIVE_SOURCE = "ActiveSourceOffRegex";
+    public static final String ACTIVE_SOURCE_OFF_REGEX = "activeSourceOffRegex";
+    public static final String EVENT_PATTERN_REGEX = "eventPatternRegex";
 
     private String cecClientPath;
     private String comPort;
@@ -71,7 +74,13 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        logger.debug("Bridge commands not supported.");
+         if (channelUID.getId().equals(HdmiCecBindingConstants.CHANNEL_SEND)) {
+             if (command instanceof StringType) {
+                 // think about this, do we want to have a controlled vocabulary or just transmit something raw, or
+                 // both?
+                 sendCommand(command.toString());
+             }
+         }        
     }
 
     @Override
@@ -91,8 +100,11 @@ public class HdmiCecBridgeHandler extends BaseBridgeHandler {
         if (this.getConfig().containsKey(ACTIVE_SOURCE_ON_REGEX)) {
             activeSourceOn = Pattern.compile((String) this.getConfig().get(ACTIVE_SOURCE_ON_REGEX));
         }
-        if (this.getConfig().containsKey(ACTIVE_SOURCE)) {
-            activeSourceOff = Pattern.compile((String) this.getConfig().get(ACTIVE_SOURCE));
+        if (this.getConfig().containsKey(ACTIVE_SOURCE_OFF_REGEX)) {
+            activeSourceOff = Pattern.compile((String) this.getConfig().get(ACTIVE_SOURCE_OFF_REGEX));
+        }
+        if (this.getConfig().containsKey(EVENT_PATTERN_REGEX)) {
+            eventPattern = Pattern.compile((String) this.getConfig().get(EVENT_PATTERN_REGEX));
         }
 
         logger.debug("initialize client: {}, com port: {}", cecClientPath, comPort);

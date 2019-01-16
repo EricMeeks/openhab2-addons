@@ -11,7 +11,6 @@ package org.openhab.binding.hdmicec.handler;
 import java.util.regex.Matcher;
 
 import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -59,12 +58,6 @@ public class HdmiCecEquipmentHandler extends BaseThingHandler {
                 bridgeHandler.sendCommand("tx " + getDevice() + "F:82:" + getAddressAsFrame());
             } else if (command.equals(OnOffType.OFF)) {
                 bridgeHandler.sendCommand("tx " + getDevice() + "F:9D:" + getAddressAsFrame());
-            }
-        } else if (channelUID.getId().equals(HdmiCecBindingConstants.CHANNEL_SEND)) {
-            if (command instanceof StringType) {
-                // think about this, do we want to have a controlled vocabulary or just transmit something raw, or
-                // both?
-                bridgeHandler.sendCommand(command.toString());
             }
         }
     }

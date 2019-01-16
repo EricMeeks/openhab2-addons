@@ -9,6 +9,10 @@
 		<label>HDMI-CEC Bridge</label>
 		<description>The HDMI-CEC Bridge.</description>
 
+		<channels>
+			<channel id="send" typeId="send" />
+		</channels>
+
 		<config-description>
 			<parameter name="cecClientPath" type="text" required="true">
 				<label>cec-client executable path</label>
@@ -32,7 +36,6 @@
 			<channel id="power" typeId="power" />
 			<channel id="activeSource" typeId="activeSource" />
 			<channel id="event" typeId="event" />
-			<channel id="send" typeId="send" />
 		</channels>
 
 		<config-description>
