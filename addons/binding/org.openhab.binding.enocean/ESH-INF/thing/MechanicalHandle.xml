@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions bindingId="enocean"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
-	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
 	<!-- MechanicalHandle -->
 	<thing-type id="mechanicalHandle">
@@ -11,7 +11,7 @@
 		</supported-bridge-type-refs>
 
 		<label>Mechanical Handle</label>
-		<description>Mechanical handle sensor for window/door handles (EEP: F6-10)</description>
+		<description>Mechanical handle sensor for window/door handles</description>
 
 		<config-description>
 			<parameter name="enoceanId" type="text">
@@ -25,6 +25,7 @@
 				<options>
 					<option value="F6_10_00">F6-10-00</option>
 					<option value="F6_10_01">F6-10-01</option>
+					<option value="A5_14_09">A5-14-09</option>
 				</options>
 				<limitToOptions>true</limitToOptions>
 				<required>true</required>

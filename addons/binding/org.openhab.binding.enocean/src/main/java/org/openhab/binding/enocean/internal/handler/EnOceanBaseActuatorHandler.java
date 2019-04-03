@@ -1,10 +1,14 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.openhab.binding.enocean.internal.handler;
 
@@ -22,6 +26,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -191,10 +196,21 @@ public class EnOceanBaseActuatorHandler extends EnOceanBaseSensorHandler {
 
         // check if we do support refreshs
         if (command == RefreshType.REFRESH) {
-            // receiving status cannot be refreshed
-            if (channel.getChannelTypeUID().getId().equals(CHANNEL_RECEIVINGSTATE)
-                    || !sendingEEPType.getSupportsRefresh()) {
+            if (!sendingEEPType.getSupportsRefresh()) {
                 return;
+            }
+
+            // receiving status cannot be refreshed
+            ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
+            if (channelTypeUID != null) {
+                String channelTypeId = channelTypeUID.getId();
+
+                switch (channelTypeId) {
+                    case CHANNEL_RSSI:
+                    case CHANNEL_REPEATCOUNT:
+                    case CHANNEL_LASTRECEIVED:
+                        return;
+                }
             }
         }
 
@@ -213,9 +229,9 @@ public class EnOceanBaseActuatorHandler extends EnOceanBaseSensorHandler {
             // The currentState is updated by EnOceanBaseSensorHandler after receiving a response.
             State currentState = getCurrentState(channelId);
 
-            ESP3Packet msg = eep.setSenderId(senderId).setDestinationId(destinationId)
-                    .convertFromCommand(channelId, channel.getChannelTypeUID().getId(), command, currentState,
-                            channelConfig)
+            ESP3Packet msg = eep
+                    .setSenderId(senderId).setDestinationId(destinationId).convertFromCommand(channelId,
+                            channel.getChannelTypeUID().getId(), command, currentState, channelConfig)
                     .setSuppressRepeating(getConfiguration().suppressRepeating).getERP1Message();
 
             getBridgeHandler().sendMessage(msg, null);
