@@ -287,6 +287,11 @@
         <bundle start-level="80">mvn:org.openhab.addons.bundles/org.openhab.binding.harmonyhub/${project.version}</bundle>
     </feature>
     
+    <feature name="openhab-binding-hdmicec" description="HdmiCec Binding" version="${project.version}">
+        <feature>openhab-runtime-base</feature>
+        <bundle start-level="80">mvn:org.openhab.addons.bundles/org.openhab.binding.hdmicec/${project.version}</bundle>
+    </feature>
+
     <feature name="openhab-binding-helios" description="Helios Binding" version="${project.version}">
         <feature>openhab-runtime-base</feature>
         <bundle dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/2.2.4</bundle>
